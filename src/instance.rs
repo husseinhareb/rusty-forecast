@@ -3,7 +3,7 @@
 use serde::Deserialize;
 use serde_json::Value;
 use reqwest::blocking::Client;
-
+use crate::city::read_city_name;
 #[derive(Deserialize)]
 struct WeatherResponse {
     main: WeatherData,
@@ -15,13 +15,20 @@ struct WeatherData {
     humidity: f32,
 }
 
+
 pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
     // Your API key from OpenWeatherMap
     let api_key = "2a33d8b44aa8d93d07feac453b4a79aa";
     // City name for which you want to fetch weather data
-    let city = "London";
+    let city_name = match read_city_name() {
+        Ok(name) => name,
+        Err(err) => {
+            eprintln!("Error reading city name: {}", err);
+            return Ok(()); // or handle the error accordingly
+        }
+    };
     // OpenWeatherMap API URL
-    let url = format!("http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric", city, api_key);
+    let url = format!("http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric", city_name, api_key);
 
     // Make a GET request to OpenWeatherMap API
     let response = Client::new().get(&url).send()?;

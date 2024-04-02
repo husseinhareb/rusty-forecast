@@ -1,6 +1,7 @@
 use std::process::Command;
 use std::fs::{self, File};
 use std::io::prelude::*;
+use std::io::{self, BufRead};
 use std::path::{Path, PathBuf};
 use dirs;
 
@@ -38,23 +39,58 @@ pub fn create_config() -> std::io::Result<()> {
     Ok(())
 }
 
-pub fn load_def_city() -> std::io::Result<()> {
-    let config_dir = dirs::config_dir().expect("Unable to determine config directory");
-    let folder_path = config_dir.join("rusty-forecast");
-    let file_path = folder_path.join("rusty-forecast.conf");
+pub fn write_def_city() -> std::io::Result<()> {
+    let config_dir = match dirs::config_dir() {
+        Some(path) => path,
+        None => return Err(std::io::Error::new(std::io::ErrorKind::NotFound, "Config directory not found")),
+    };
 
-    if !file_exists(&file_path) {
-        println!("Config file does not exist: {:?}", file_path);
-        return Ok(());
+    let file_path = config_dir.join("rusty-forecast").join("rusty-forecast.conf");
+
+    if let Some(parent_dir) = file_path.parent() {
+        if !parent_dir.exists() {
+            std::fs::create_dir_all(parent_dir)?;
+        }
     }
 
-    let mut file = File::open(&file_path)?;
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
+    // Open the file for writing, creating it if it doesn't exist
+    let mut file = File::create(&file_path)?;
 
-    println!("Contents of the config file: {}", contents);
+    // Get the default city
+    let def_city = match default_city() {
+        Ok(city) => city,
+        Err(err) => return Err(err),
+    };
+
+    file.write_all(format!("city   {}", def_city).as_bytes())?;
 
     Ok(())
+}
+
+pub fn read_city_name() -> io::Result<String> {
+    // Determine the path to the config directory
+    let config_dir = match dirs::config_dir() {
+        Some(path) => path,
+        None => return Err(io::Error::new(io::ErrorKind::NotFound, "Config directory not found")),
+    };
+
+    // Construct the path to the config file
+    let file_path = config_dir.join("rusty-forecast").join("rusty-forecast.conf");
+
+    // Open the file for reading
+    let file = File::open(&file_path)?;
+    let reader = io::BufReader::new(file);
+
+    // Iterate over the lines and find the line containing "city"
+    for line in reader.lines() {
+        let line = line?;
+        if line.trim().starts_with("city") {
+            // Extract the city name
+            let city_name = line.split_whitespace().skip(1).collect::<Vec<&str>>().join(" ");
+            return Ok(city_name);
+        }
+    }
+    Err(io::Error::new(io::ErrorKind::NotFound, "City name not found"))
 }
 
 // Function to check if a folder exists
