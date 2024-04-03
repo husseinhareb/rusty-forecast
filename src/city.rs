@@ -2,7 +2,7 @@ use std::process::Command;
 use std::fs::{self, File};
 use std::io::prelude::*;
 use std::io::{self, BufRead};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use dirs;
 
 pub fn default_city() -> Result<String, std::io::Error> {
@@ -34,15 +34,14 @@ pub fn create_config() -> std::io::Result<()> {
         return Ok(());
     }
 
-    let mut file = File::create(&file_path)?;
-
     Ok(())
 }
 
-pub fn write_def_city() -> std::io::Result<()> {
+
+pub fn write_city_name(city_name: &str) -> io::Result<()> {
     let config_dir = match dirs::config_dir() {
         Some(path) => path,
-        None => return Err(std::io::Error::new(std::io::ErrorKind::NotFound, "Config directory not found")),
+        None => return Err(io::Error::new(io::ErrorKind::NotFound, "Config directory not found")),
     };
 
     let file_path = config_dir.join("rusty-forecast").join("rusty-forecast.conf");
@@ -56,36 +55,36 @@ pub fn write_def_city() -> std::io::Result<()> {
     // Open the file for writing, creating it if it doesn't exist
     let mut file = File::create(&file_path)?;
 
+    file.write_all(format!("city   {}\n", city_name).as_bytes())?;
+
+    Ok(())
+}
+
+pub fn write_def_city() -> io::Result<()> {
     // Get the default city
     let def_city = match default_city() {
         Ok(city) => city,
         Err(err) => return Err(err),
     };
 
-    file.write_all(format!("city   {}", def_city).as_bytes())?;
-
-    Ok(())
+    write_city_name(&def_city)
 }
 
+
 pub fn read_city_name() -> io::Result<String> {
-    // Determine the path to the config directory
     let config_dir = match dirs::config_dir() {
         Some(path) => path,
         None => return Err(io::Error::new(io::ErrorKind::NotFound, "Config directory not found")),
     };
 
-    // Construct the path to the config file
     let file_path = config_dir.join("rusty-forecast").join("rusty-forecast.conf");
 
-    // Open the file for reading
     let file = File::open(&file_path)?;
     let reader = io::BufReader::new(file);
 
-    // Iterate over the lines and find the line containing "city"
     for line in reader.lines() {
         let line = line?;
         if line.trim().starts_with("city") {
-            // Extract the city name
             let city_name = line.split_whitespace().skip(1).collect::<Vec<&str>>().join(" ");
             return Ok(city_name);
         }
