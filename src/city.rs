@@ -4,7 +4,7 @@ use std::io::{self, prelude::*, BufRead};
 use std::path::Path;
 use dirs;
 
-//Function to get the default city according 
+// Function to get the default city according 
 pub fn default_city() -> Result<String, std::io::Error> {
     let output = Command::new("sh")
                          .arg("-c")
@@ -19,7 +19,9 @@ pub fn default_city() -> Result<String, std::io::Error> {
         Err(std::io::Error::new(std::io::ErrorKind::Other, "Command execution failed"))
     }
 }
-//Function to create the config file if not created
+
+
+// Function to create the config file if not created
 pub fn create_config() -> std::io::Result<()> {
     let config_dir = dirs::config_dir().expect("Unable to determine config directory");
     let folder_path = config_dir.join("rusty-forecast");
@@ -37,7 +39,8 @@ pub fn create_config() -> std::io::Result<()> {
     Ok(())
 }
 
-//Function to write city name according to parameter into the config file
+
+// Function to write city name according to parameter into the config file
 pub fn write_city_name(city_name: &str) -> io::Result<()> {
     let config_dir = match dirs::config_dir() {
         Some(path) => path,
@@ -57,9 +60,10 @@ pub fn write_city_name(city_name: &str) -> io::Result<()> {
 
     Ok(())
 }
+
+
 // Function to write default city according to Timezone into the config file
 pub fn write_def_city() -> io::Result<()> {
-    // Get the default city
     let def_city = match default_city() {
         Ok(city) => city,
         Err(err) => return Err(err),
@@ -67,6 +71,7 @@ pub fn write_def_city() -> io::Result<()> {
 
     write_city_name(&def_city)
 }
+
 
 // Function to read city name from config file
 pub fn read_city_name() -> io::Result<String> {
@@ -90,6 +95,7 @@ pub fn read_city_name() -> io::Result<String> {
     Err(io::Error::new(io::ErrorKind::NotFound, "City name not found"))
 }
 
+
 // Function to check if a folder exists
 fn folder_exists(folder_path: &Path) -> bool {
     if let Ok(metadata) = std::fs::metadata(folder_path) {
@@ -99,6 +105,7 @@ fn folder_exists(folder_path: &Path) -> bool {
     }
 }
 
+
 // Function to check if a file exists
 fn file_exists(file_path: &Path) -> bool {
     if let Ok(metadata) = std::fs::metadata(file_path) {
@@ -107,4 +114,3 @@ fn file_exists(file_path: &Path) -> bool {
         false
     }
 }
-

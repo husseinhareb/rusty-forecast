@@ -11,14 +11,14 @@ struct WeatherResponse {
 }
 
 #[derive(Deserialize)]
-struct WeatherData {
-    temp: f32,
-    humidity: f32,
+struct WeatherDescription {
+    description: String,
 }
 
 #[derive(Deserialize)]
-struct WeatherDescription {
-    description: String,
+struct WeatherData {
+    temp: f32,
+    humidity: f32,
 }
 
 pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
@@ -42,27 +42,45 @@ pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let weather: WeatherResponse = serde_json::from_value(data)?;
+    println!("{}",city_name);
 
-    let weather_status = match weather.weather.get(0) {
-        Some(description) => match description.description.as_str() {
-            "clear sky" => WeatherStatus::clear_sky,
-            "few clouds" => WeatherStatus::few_clouds,
-            "scattered clouds" => WeatherStatus::scattered_clouds,
-            "broken clouds" => WeatherStatus::broken_clouds,
-            "shower rain" => WeatherStatus::shower_rain,
-            "rain" => WeatherStatus::rain,
-            "thunderstorm" => WeatherStatus::thunderstorm,
-            "snow" => WeatherStatus::snow,
-            "mist" => WeatherStatus::mist,
-            _ => WeatherStatus::mist, // Default to mist if unknown description
-        },
-        None => WeatherStatus::mist, // Default to mist if no weather description available
+    // Get the weather description from the response
+    let weather_description = match weather.weather.get(0) {
+        Some(desc) => &desc.description,
+        None => {
+            println!("No weather description available");
+            return Ok(());
+        }
     };
 
-    let temp_box = format!("╔═══════════════════════════╗\n║ Temperature: {:>6}°C\n║ Description: {:>12}    {}\n╚═══════════════════════════╝", 
-                           weather.main.temp, 
-                           weather.weather[0].description, 
-                           weather_status.icon());
+    // Match the weather description to get the corresponding WeatherStatus
+    let weather_status = match weather_description.as_str() {
+        "clear sky" => WeatherStatus::clear_sky,
+        "few clouds" => WeatherStatus::few_clouds,
+        "scattered clouds" => WeatherStatus::scattered_clouds,
+        "broken clouds" => WeatherStatus::broken_clouds,
+        "shower rain" => WeatherStatus::shower_rain,
+        "rain" => WeatherStatus::rain,
+        "thunderstorm" => WeatherStatus::thunderstorm,
+        "snow" => WeatherStatus::snow,
+        "mist" => WeatherStatus::mist,
+        _ => {
+            println!("Unknown weather description");
+            return Ok(());
+        }
+    };
+
+    let temp_box = format!("╔═════════════════════╗\n\
+                            ║        {}         ║\n\
+                            ║        {}  °C     ║\n\
+                            ║        {} %       ║\n\
+                            ║        {}         ║\n\
+                            ╚═════════════════════╝", 
+                            weather_status.icon(),
+                            weather.weather[0].description,
+                            weather.main.temp,
+                            weather.main.humidity
+                           );
 
     println!("{}", temp_box);
     

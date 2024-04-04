@@ -1,5 +1,5 @@
 #[derive(Debug, PartialEq)]
-enum WeatherStatus {
+pub enum WeatherStatus {
     clear_sky,
     few_clouds,
     scattered_clouds,
@@ -12,7 +12,7 @@ enum WeatherStatus {
 }
 
 impl WeatherStatus {
-    fn icon(&self) -> &'static str {
+   pub fn icon(&self) -> &'static str {
         match self {
             WeatherStatus::clear_sky => " ",
             WeatherStatus::few_clouds => " ",
@@ -26,5 +26,4 @@ impl WeatherStatus {
         }
     }
 }
-
 

@@ -2,6 +2,8 @@ use std::env;
 
 mod instance;
 mod city;
+mod condition_icons;
+
 
 fn help() {
     println!("Usage:
