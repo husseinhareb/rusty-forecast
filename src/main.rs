@@ -13,18 +13,14 @@ fn help() {
 }
 
 
-
 fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() == 1 {
-        // If no arguments are provided
-        instance::weather_now();
-        city::create_config();
+        let _ = instance::weather_now(); 
+        let _ = city::create_config(); 
         return;
     }
-
-    let mut city_name: Option<String> = None;
 
     // Iterate through command-line arguments
     let mut iter = args.iter().skip(1); // Skip the first argument (program name)
@@ -37,7 +33,13 @@ fn main() {
             }
             "-c" => {
                 // Read the next argument as the city name
-                city_name = iter.next().map(|s| s.to_owned());
+                if let Some(city_name) = iter.next().map(|s| s.to_owned()) {
+                    let _ = city::write_city_name(&city_name);
+                } else {
+                    eprintln!("City name not provided for the -c flag.");
+                    help();
+                    return;
+                }
             }
             "-d" => {
                 if let Err(err) = city::write_def_city() {
@@ -58,12 +60,5 @@ fn main() {
                 return;
             }
         }
-    }
-
-    if let Some(city_name) = city_name {
-        city::write_city_name(&city_name);
-    } else {
-        eprintln!("City name not provided for the -c flag.");
-        help();
     }
 }
