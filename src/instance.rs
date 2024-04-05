@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use serde_json::Value;
 use reqwest::blocking::Client;
-use crate::city::read_city_name;
+use crate::config::read_city_name;
 use crate::condition_icons::WeatherStatus;
 
 #[derive(Deserialize)]

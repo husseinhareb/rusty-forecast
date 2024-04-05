@@ -4,6 +4,7 @@ mod instance;
 mod city;
 mod condition_icons;
 mod upcoming;
+mod config;
 
 fn help() {
     println!("Usage:
@@ -19,7 +20,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() == 1 {
-        let _ = city::create_config(); 
+        let _ = config::create_config(); 
         let _ = instance::weather_now(); 
         return;
     }
@@ -36,7 +37,7 @@ fn main() {
             "-c" => {
                 // Read the next argument as the city name
                 if let Some(city_name) = iter.next().map(|s| s.to_owned()) {
-                    let _ = city::write_city_name(&city_name);
+                    let _ = config::write_city_name(&city_name);
                 } else {
                     eprintln!("City name not provided for the -c flag.");
                     help();
@@ -44,7 +45,7 @@ fn main() {
                 }
             }
             "-d" => {
-                if let Err(err) = city::write_def_city() {
+                if let Err(err) = config::write_def_city() {
                     eprintln!("Error: {}", err);
                 }
             }
@@ -59,7 +60,7 @@ fn main() {
                 }
             }
             "-s" => {
-                if let Err(err) = city::read_all_configs() {
+                if let Err(err) = config::read_all_configs() {
                     eprintln!("Error: {}", err);
                 }
             }
