@@ -3,7 +3,7 @@ use std::env;
 mod instance;
 mod city;
 mod condition_icons;
-
+mod upcoming;
 
 fn help() {
     println!("Usage:
@@ -54,7 +54,14 @@ fn main() {
                 }
             }
             "-w" => {
-                // Implement handling for the "-w" flag if needed
+                if let Err(err) = upcoming::weather_forecast() {
+                    eprintln!("Error: {}", err);
+                }
+            }
+            "-s" => {
+                if let Err(err) = city::read_all_configs() {
+                    eprintln!("Error: {}", err);
+                }
             }
             _ => {
                 eprintln!("Invalid argument: {}", arg);

@@ -116,3 +116,31 @@ fn file_exists(file_path: &Path) -> bool {
         false
     }
 }
+
+
+pub fn read_all_configs() -> io::Result<String> {
+    let config_dir = match dirs::config_dir() {
+        Some(path) => path,
+        None => return Err(io::Error::new(io::ErrorKind::NotFound, "Config directory not found")),
+    };
+
+    let file_path = config_dir.join("rusty-forecast").join("rusty-forecast.conf");
+
+    let file = File::open(&file_path)?;
+    let reader = io::BufReader::new(file);
+    
+    let mut config_content = String::new();
+
+    for line in reader.lines() {
+        let line = line?;
+        config_content.push_str(&line);
+        config_content.push('\n');
+        println!("{}",line);
+    }
+
+    if config_content.is_empty() {
+        return Err(io::Error::new(io::ErrorKind::NotFound, "Config content not found"));
+    }
+
+    Ok(config_content)
+}
