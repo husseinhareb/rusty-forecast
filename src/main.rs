@@ -19,8 +19,8 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() == 1 {
-        let _ = instance::weather_now(); 
         let _ = city::create_config(); 
+        let _ = instance::weather_now(); 
         return;
     }
 

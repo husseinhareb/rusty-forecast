@@ -55,15 +55,15 @@ pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
 
     // Match the weather description to get the corresponding WeatherStatus
     let weather_status = match weather_description.as_str() {
-        "clear sky" => WeatherStatus::clear_sky,
-        "few clouds" => WeatherStatus::few_clouds,
-        "scattered clouds" => WeatherStatus::scattered_clouds,
-        "broken clouds" => WeatherStatus::broken_clouds,
-        "shower rain" => WeatherStatus::shower_rain,
-        "rain" => WeatherStatus::rain,
-        "thunderstorm" => WeatherStatus::thunderstorm,
-        "snow" => WeatherStatus::snow,
-        "mist" => WeatherStatus::mist,
+        "clear sky" => WeatherStatus::ClearSky,
+        "few clouds" => WeatherStatus::FewClouds,
+        "scattered clouds" => WeatherStatus::ScatteredClouds,
+        "broken clouds" => WeatherStatus::BrokenClouds,
+        "shower rain" => WeatherStatus::ShowerRain,
+        "rain" => WeatherStatus::Rain,
+        "thunderstorm" => WeatherStatus::Thunderstorm,
+        "snow" => WeatherStatus::Snow,
+        "mist" => WeatherStatus::Mist,
         _ => {
             println!("Unknown weather description");
             return Ok(());
@@ -72,9 +72,9 @@ pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
 
     let temp_box = format!("╔═════════════════════╗\n\
                             ║        {}         ║\n\
-                            ║        {}  °C     ║\n\
+                            ║        {}      ║\n\
+                            ║        {} °C       ║\n\
                             ║        {} %       ║\n\
-                            ║        {}         ║\n\
                             ╚═════════════════════╝", 
                             weather_status.icon(),
                             weather.weather[0].description,

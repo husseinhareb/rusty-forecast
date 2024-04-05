@@ -34,6 +34,8 @@ pub fn create_config() -> std::io::Result<()> {
 
     if file_exists(&file_path) {
         return Ok(());
+    }else{
+        let _ = write_def_city();
     }
 
     Ok(())
