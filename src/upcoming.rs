@@ -1,6 +1,7 @@
 use serde::Deserialize;
-use crate::config::read_city_name;
+use crate::config::{read_city_name,read_unit};
 use crate::condition_icons::WeatherStatus;
+use crate::condition_icons::map_weather_description_to_code;
 
 #[derive(Deserialize)]
 struct ForecastResponse {
@@ -34,7 +35,23 @@ pub fn weather_forecast() -> Result<(), Box<dyn std::error::Error>> {
             return Ok(());
         }
     };
-    let url = format!("http://api.openweathermap.org/data/2.5/forecast?q={}&appid={}&units=metric", city_name, api_key);
+        // Read unit value from config
+    let unit_value = match read_unit() {
+        Ok(name) => name,
+        Err(err) => {
+            eprintln!("Error reading unit value: {}", err);
+            return Ok(());
+        }
+    };
+    
+    // Determine unit type based on unit value
+    let unit_type = if unit_value == "C" {
+        "metric"
+    } else {
+        "imperial"
+    };
+
+    let url = format!("http://api.openweathermap.org/data/2.5/forecast?q={}&appid={}&units={}", city_name, api_key,unit_type);
 
     let response = reqwest::blocking::get(&url)?.text()?;
 
@@ -62,22 +79,23 @@ pub fn weather_forecast() -> Result<(), Box<dyn std::error::Error>> {
                 return Ok(());
             }
         };
+    // Map weather description to weather code
+    let weather_code = match map_weather_description_to_code(&weather_description) {
+        Some(code) => code,
+        None => {
+            println!("Unknown weather description");
+            return Ok(());
+        }
+    };
 
-        let weather_status = match weather_description.as_str() {
-            "clear sky" => WeatherStatus::ClearSky,
-            "few clouds" => WeatherStatus::FewClouds,
-            "scattered clouds" => WeatherStatus::ScatteredClouds,
-            "broken clouds" => WeatherStatus::BrokenClouds,
-            "shower rain" => WeatherStatus::ShowerRain,
-            "rain" => WeatherStatus::Rain,
-            "thunderstorm" => WeatherStatus::Thunderstorm,
-            "snow" => WeatherStatus::Snow,
-            "mist" => WeatherStatus::Mist,
-            _ => {
-                println!("Unknown weather description");
-                return Ok(());
-            }
-        };
+    // Get the WeatherStatus corresponding to the weather code
+    let weather_status = match WeatherStatus::from_weather_code(weather_code) {
+        Some(status) => status,
+        None => {
+            println!("Unsupported weather code");
+            return Ok(());
+        }
+    };
 
         let date_time = &forecast_data.dt_txt;
         let date = &date_time.split(' ').collect::<Vec<&str>>()[0];
@@ -85,12 +103,13 @@ pub fn weather_forecast() -> Result<(), Box<dyn std::error::Error>> {
         let temp_box = format!("╔═════════════════════╗\n\
                                 ║   Date: {}         ║\n\
                                 ║   Weather: {}      ║\n\
-                                ║   Temperature: {} °C   ║\n\
+                                ║   Temperature: {} °{}   ║\n\
                                 ║   Humidity: {} %   ║\n\
                                 ╚═════════════════════╝", 
                                 date,
                                 weather_status.icon(),
                                 forecast_data.main.temp,
+                                unit_value,
                                 forecast_data.main.humidity
                                );
 

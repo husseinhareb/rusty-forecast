@@ -1,5 +1,3 @@
-// condition_icons.rs
-
 #[derive(Debug, PartialEq)]
 pub enum WeatherStatus {
     ClearSky,
@@ -43,5 +41,67 @@ impl WeatherStatus {
             WeatherStatus::Snow => "",
             WeatherStatus::Mist => "󰖑",
         }
+    }
+}
+
+// Mapping from weather description to weather code
+pub fn map_weather_description_to_code(description: &str) -> Option<u16> {
+    match description {
+        "thunderstorm with light rain" => Some(200),
+        "thunderstorm with rain" => Some(201),
+        "thunderstorm with heavy rain" => Some(202),
+        "light thunderstorm" => Some(210),
+        "thunderstorm" => Some(211),
+        "heavy thunderstorm" => Some(212),
+        "ragged thunderstorm" => Some(221),
+        "thunderstorm with light drizzle" => Some(230),
+        "thunderstorm with drizzle" => Some(231),
+        "thunderstorm with heavy drizzle" => Some(232),
+        "light intensity drizzle" => Some(300),
+        "drizzle" => Some(301),
+        "heavy intensity drizzle" => Some(302),
+        "light intensity drizzle rain" => Some(310),
+        "drizzle rain" => Some(311),
+        "heavy intensity drizzle rain" => Some(312),
+        "shower rain and drizzle" => Some(313),
+        "heavy shower rain and drizzle" => Some(314),
+        "shower drizzle" => Some(321),
+        "light rain" => Some(500),
+        "moderate rain" => Some(501),
+        "heavy intensity rain" => Some(502),
+        "very heavy rain" => Some(503),
+        "extreme rain" => Some(504),
+        "freezing rain" => Some(511),
+        "light intensity shower rain" => Some(520),
+        "shower rain" => Some(521),
+        "heavy intensity shower rain" => Some(522),
+        "ragged shower rain" => Some(531),
+        "light snow" => Some(600),
+        "snow" => Some(601),
+        "heavy snow" => Some(602),
+        "sleet" => Some(611),
+        "light shower sleet" => Some(612),
+        "shower sleet" => Some(613),
+        "light rain and snow" => Some(615),
+        "rain and snow" => Some(616),
+        "light shower snow" => Some(620),
+        "shower snow" => Some(621),
+        "heavy shower snow" => Some(622),
+        "mist" => Some(701),
+        "smoke" => Some(711),
+        "haze" => Some(721),
+        "sand/dust whirls" => Some(731),
+        "fog" => Some(741),
+        "sand" => Some(751),
+        "dust" => Some(761),
+        "volcanic ash" => Some(762),
+        "squalls" => Some(771),
+        "tornado" => Some(781),
+        "clear sky" => Some(800),
+        "few clouds" => Some(801),
+        "scattered clouds" => Some(802),
+        "broken clouds" => Some(803),
+        "overcast clouds" => Some(804),
+        _ => None,
     }
 }
