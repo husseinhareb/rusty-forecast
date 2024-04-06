@@ -3,7 +3,7 @@ use serde_json::Value;
 use reqwest::blocking::Client;
 use crate::config::read_city_name;
 use crate::condition_icons::WeatherStatus;
-
+use crate::config::read_unit;
 #[derive(Deserialize)]
 struct WeatherResponse {
     main: WeatherData,
@@ -30,7 +30,23 @@ pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
             return Ok(());
         }
     };
-    let url = format!("http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric", city_name, api_key);
+
+    let unit_value = match read_unit() {
+        Ok(name) => name,
+        Err(err) => {
+            eprintln!("Error reading unit value: {}", err);
+            return Ok(());
+        }
+    };
+    
+    let unit_type: &str;
+    
+    if unit_value == "C" {
+        unit_type = "metric";
+    } else {
+        unit_type = "imperial";
+    }
+    let url = format!("http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}", city_name, api_key,unit_type);
 
     let response = Client::new().get(&url).send()?;
 

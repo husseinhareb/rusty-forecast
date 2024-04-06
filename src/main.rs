@@ -10,8 +10,10 @@ fn help() {
     println!("Usage:
         -h      Display help
         -c      Change city
+        -u      Change unit
         -d      Load default city
         -t      See more information for today's weather
+        -s      Display settings
         -w      See the week's weather");
 }
 
@@ -35,7 +37,6 @@ fn main() {
                 return;
             }
             "-c" => {
-                // Read the next argument as the city name
                 if let Some(city_name) = iter.next().map(|s| s.to_owned()) {
                     let _ = config::write_city_name(&city_name);
                 } else {
@@ -64,6 +65,24 @@ fn main() {
                     eprintln!("Error: {}", err);
                 }
             }
+            "-u" => {
+                if let Some(unit_value) = iter.next() {
+                    if let Some(unit_char) = unit_value.chars().next() {
+                        let unit = unit_char.to_ascii_uppercase();
+                        if unit == 'C' || unit == 'F' {
+                            let _ = config::write_unit(&unit);
+                        } else {
+                            eprintln!("Invalid unit value provided. Use 'C' or 'F'.");
+                            return;
+                        }
+                    } else {
+                        eprintln!("Invalid unit value provided. Use single characters 'C' or 'F'.");
+                        return;
+                    }
+                }
+                
+            }
+            
             _ => {
                 eprintln!("Invalid argument: {}", arg);
                 help();

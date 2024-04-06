@@ -61,19 +61,36 @@ pub fn write_city_name(city_name: &str) -> io::Result<()> {
         None => return Err(io::Error::new(io::ErrorKind::NotFound, "Config directory not found")),
     };
 
-    let file_path = config_dir.join("rusty-forecast").join("rusty-forecast.conf");
+    let file_path = config_dir.join("rusty-forecast").join("rusty-forecast.conf");    
 
-    if let Some(parent_dir) = file_path.parent() {
-        if !parent_dir.exists() {
-            std::fs::create_dir_all(parent_dir)?;
+    let mut file_content = String::new();
+    if file_path.exists() {
+        let mut file = File::open(&file_path)?;
+        file.read_to_string(&mut file_content)?;
+    }
+
+    let mut updated_content = String::new();
+    let mut city_found = false;
+    for line in file_content.lines() {
+        if line.trim().starts_with("city") {
+            city_found = true;
+            updated_content.push_str(&format!("city {}\n", city_name));
+        } else {
+            updated_content.push_str(&line);
+            updated_content.push('\n');
         }
     }
-    let mut file = File::create(&file_path)?;
 
-    file.write_all(format!("city   {}\n", city_name).as_bytes())?;
+    if !city_found {
+        updated_content.push_str(&format!("city {}\n", city_name));
+    }
+
+    let mut file = File::create(&file_path)?;
+    file.write_all(updated_content.as_bytes())?;
 
     Ok(())
 }
+
 
 
 // Function to read city name from config file
@@ -96,6 +113,65 @@ pub fn read_city_name() -> io::Result<String> {
         }
     }
     Err(io::Error::new(io::ErrorKind::NotFound, "City name not found"))
+}
+
+
+// Function to write unit value according to parameter into the config file
+pub fn write_unit(unit_value: &char) -> io::Result<()> {
+    let config_dir = match dirs::config_dir() {
+        Some(path) => path,
+        None => return Err(io::Error::new(io::ErrorKind::NotFound, "Config directory not found")),
+    };
+
+    let file_path = config_dir.join("rusty-forecast").join("rusty-forecast.conf");   
+
+    let mut file_content = String::new();
+    if file_path.exists() {
+        let mut file = File::open(&file_path)?;
+        file.read_to_string(&mut file_content)?;
+    }
+
+    let mut updated_content = String::new();
+    let mut unit_found = false;
+    for line in file_content.lines() {
+        if line.trim().starts_with("unit") {
+            unit_found = true;
+            updated_content.push_str(&format!("unit {}\n", unit_value));
+        } else {
+            updated_content.push_str(&line);
+            updated_content.push('\n');
+        }
+    }
+
+    if !unit_found {
+        updated_content.push_str(&format!("unit {}\n", unit_value));
+    }
+
+    let mut file = File::create(&file_path)?;
+    file.write_all(updated_content.as_bytes())?;
+
+    Ok(())
+}
+
+pub fn read_unit() -> io::Result<String> {
+    let config_dir = match dirs::config_dir() {
+        Some(path) => path,
+        None => return Err(io::Error::new(io::ErrorKind::NotFound, "Config directory not found")),
+    };
+
+    let file_path = config_dir.join("rusty-forecast").join("rusty-forecast.conf");
+
+    let file = File::open(&file_path)?;
+    let reader = io::BufReader::new(file);
+
+    for line in reader.lines() {
+        let line = line?;
+        if line.trim().starts_with("unit") {
+            let city_name = line.split_whitespace().skip(1).collect::<Vec<&str>>().join(" ");
+            return Ok(city_name);
+        }
+    }
+    Err(io::Error::new(io::ErrorKind::NotFound, "unit name not found"))
 }
 
 // Function to write default city according to Timezone into the config file
