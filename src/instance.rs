@@ -46,7 +46,9 @@ pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         unit_type = "imperial";
     }
-    let url = format!("http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}", city_name, api_key,unit_type);
+    
+    let url = format!("http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}", city_name, api_key, unit_type);
+    
 
     let response = Client::new().get(&url).send()?;
 
@@ -89,12 +91,13 @@ pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
     let temp_box = format!("╔═════════════════════╗\n\
                             ║        {}         ║\n\
                             ║        {}      ║\n\
-                            ║        {} °C       ║\n\
+                            ║        {} °{}       ║\n\
                             ║        {} %       ║\n\
                             ╚═════════════════════╝", 
                             weather_status.icon(),
                             weather.weather[0].description,
                             weather.main.temp,
+                            unit_value,
                             weather.main.humidity
                            );
 
