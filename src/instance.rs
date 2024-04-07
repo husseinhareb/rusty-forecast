@@ -9,7 +9,8 @@ struct WeatherResponse {
     main: WeatherData,
     weather: Vec<WeatherDescription>,
     sys: SysData,
-
+    visibility: f32,
+    wind: WindData,
 }
 
 #[derive(Deserialize)]
@@ -34,12 +35,18 @@ struct SysData {
 }
 
 
+#[derive(Deserialize)]
+struct WindData {
+    deg: u16,
+    speed: f32,
+}
+
+
 fn fetch_weather_data() -> Result<WeatherResponse, Box<dyn std::error::Error>> {
     let api_key = "2a33d8b44aa8d93d07feac453b4a79aa";
 
     let city_name = read_city_name()?;
     let unit_value = read_unit()?;
-
     let unit_type = if unit_value == "C" {
         "metric"
     } else {
@@ -112,6 +119,7 @@ pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
 
 
 pub fn weather_details() -> Result<(), Box<dyn std::error::Error>> {
+
     let weather = fetch_weather_data()?;
     println!("City: {}", read_city_name()?);
     println!("Temperature: {}°{}", weather.main.temp, read_unit()?);
@@ -120,14 +128,17 @@ pub fn weather_details() -> Result<(), Box<dyn std::error::Error>> {
     println!("Minimum Temperature: {}°{}", weather.main.temp_min, read_unit()?);
     println!("Maximum Temperature: {}°{}", weather.main.temp_max, read_unit()?);
     println!("Humidity: {}%", weather.main.humidity);
-    println!("Pressure: {}", weather.main.pressure);
-    println!("Sunrise: {}", unix_timestamp_to_local_time(weather.sys.sunrise));
-    println!("Sunset: {}", unix_timestamp_to_local_time(weather.sys.sunset));
-
+    println!("Pressure: {}hPa", weather.main.pressure);
+    println!("Sunrise: {}", unix_time_to_datetime(weather.sys.sunrise));
+    println!("Sunset: {}", unix_time_to_datetime(weather.sys.sunset));
+    println!("Visibily: {}", weather.visibility);
+    println!("Wind Degree: {}°", weather.wind.deg);
+    let speed_value = if read_unit()? == "C" { "m/s" } else { "miles/h" };
+    println!("Wind Speed: {} {}", weather.wind.speed,speed_value);
     Ok(())
 }
 
-fn unix_timestamp_to_local_time(timestamp: i64) -> String {
+fn unix_time_to_datetime(timestamp: i64) -> String {
     let naive_datetime = NaiveDateTime::from_timestamp(timestamp, 0);
 
     let local_datetime = Local.from_utc_datetime(&naive_datetime);

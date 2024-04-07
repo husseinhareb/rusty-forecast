@@ -9,13 +9,12 @@ mod config;
 fn help() {
     println!("Usage:
         -h      Display help
-        -c       // Print all other weather data here if needed
-        Change city
+        -c      Change city
         -u      Change unit
         -d      Load default city
         -t      See more information for today's weather
         -s      Display settings
-        -w      See the week's weather");
+        -w      Display the week's weather");
 }
 
 
