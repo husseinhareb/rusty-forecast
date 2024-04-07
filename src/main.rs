@@ -1,9 +1,8 @@
 use std::env;
 
-mod instance;
+mod weather;
 mod city;
 mod condition_icons;
-mod upcoming;
 mod config;
 
 fn help() {
@@ -23,7 +22,7 @@ fn main() {
 
     if args.len() == 1 {
         let _ = config::create_config(); 
-        let _ = instance::weather_now(); 
+        let _ = weather::weather_now(); 
         return;
     }
 
@@ -51,12 +50,12 @@ fn main() {
                 }
             }
             "-t" => {
-                if let Err(err) = instance::weather_details() {
+                if let Err(err) = weather::weather_details() {
                     eprintln!("Error: {}", err);
                 }
             }
             "-w" => {
-                if let Err(err) = upcoming::weather_forecast() {
+                if let Err(err) = weather::weather_forecast() {
                     eprintln!("Error: {}", err);
                 }
             }
