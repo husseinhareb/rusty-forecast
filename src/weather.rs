@@ -131,23 +131,24 @@ pub fn weather_forecast() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-        let date_time = &forecast_data.dt_txt;
-        let date = &date_time.split(' ').collect::<Vec<&str>>()[0];
-
-        let temp_box = format!("╔═════════════════════╗\n\
-                                ║   Date: {}         ║\n\
-                                ║   Weather: {}      ║\n\
-                                ║   Temperature: {} °{}   ║\n\
-                                ║   Humidity: {} %   ║\n\
-                                ╚═════════════════════╝", 
-                                date,
-                                weather_status.icon(),
-                                forecast_data.main.temp,
-                                unit_value,
-                                forecast_data.main.humidity
-                               );
-
-        println!("{}", temp_box);
+    let date_time = &forecast_data.dt_txt;
+    let date = &date_time.split(' ').collect::<Vec<&str>>()[0];
+    
+    let formatted_temp = format!("{}°{}", forecast_data.main.temp, unit_value);
+    let formatted_humidity = format!("{}%", forecast_data.main.humidity);
+    
+    let temp_box = [
+        "╔═════════════════════╗",
+        &format!("║{: ^21}║", date),
+        &format!("║{: ^21}║", weather_status.icon()), 
+        &format!("║{: ^21}║", formatted_temp), 
+        &format!("║{: ^21}║", formatted_humidity),
+        "╚═════════════════════╝",
+    ].join("\n");
+    
+    println!("{}", temp_box);
+    
+    
     }
 
     Ok(())
@@ -211,22 +212,19 @@ pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    let temp_box = format!(
-        "╔═════════════════════╗\n\
-         ║     {}         z║\n\
-         ║     {}      ║\n\
-         ║     {} °{}       ║\n\
-         ║     {} %       ║\n\
-         ╚═════════════════════╝",
-        weather_status.icon(),
-        weather.weather[0].description,
-        weather.main.temp,
-        read_unit()?,
-        weather.main.humidity
-    );
-
+    let formatted_temp = format!("{}°{}", weather.main.temp, read_unit()?);
+    let formatted_humidity = format!("{}%", weather.main.humidity);
+    let temp_box = [
+        "╔═════════════════════╗",
+        &format!("║{: ^21}║", weather_status.icon()), 
+        &format!("║{: ^21}║", weather.weather[0].description),
+        &format!("║{: ^21}║", formatted_temp), 
+        &format!("║{: ^21}║", formatted_humidity),
+        "╚═════════════════════╝",
+    ].join("\n");
+    
     println!("{}", temp_box);
-
+    
     Ok(())
 }
 
