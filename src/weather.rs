@@ -6,6 +6,10 @@ use chrono::{NaiveDateTime, TimeZone, Local};
 
 const API_KEY: &str = "2a33d8b44aa8d93d07feac453b4a79aa";
 
+const GREEN: &str = "\x1b[32m";
+
+const RESET: &str = "\x1b[0m";
+const BOLD: &str = "\x1b[1m";
 
 #[derive(Deserialize)]
 struct WeatherResponse {
@@ -151,7 +155,6 @@ pub fn weather_forecast() -> Result<(), Box<dyn std::error::Error>> {
 
 
 fn fetch_weather_data() -> Result<WeatherResponse, Box<dyn std::error::Error>> {
-    let api_key = "2a33d8b44aa8d93d07feac453b4a79aa";
 
     let city_name = read_city_name()?;
     let unit_value = read_unit()?;
@@ -210,10 +213,10 @@ pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
 
     let temp_box = format!(
         "╔═════════════════════╗\n\
-         ║        {}         ║\n\
-         ║        {}      ║\n\
-         ║        {} °{}       ║\n\
-         ║        {} %       ║\n\
+         ║     {}         z║\n\
+         ║     {}      ║\n\
+         ║     {} °{}       ║\n\
+         ║     {} %       ║\n\
          ╚═════════════════════╝",
         weather_status.icon(),
         weather.weather[0].description,
@@ -232,20 +235,20 @@ pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
 pub fn weather_details() -> Result<(), Box<dyn std::error::Error>> {
 
     let weather = fetch_weather_data()?;
-    println!("City: {}", read_city_name()?);
-    println!("Temperature: {}°{}", weather.main.temp, read_unit()?);
-    println!("Feels Like: {}°{}", weather.main.feels_like, read_unit()?);
-    println!("Weather Description: {}", weather.weather[0].description);
-    println!("Minimum Temperature: {}°{}", weather.main.temp_min, read_unit()?);
-    println!("Maximum Temperature: {}°{}", weather.main.temp_max, read_unit()?);
-    println!("Humidity: {}%", weather.main.humidity);
-    println!("Pressure: {}hPa", weather.main.pressure);
-    println!("Sunrise: {}", unix_time_to_datetime(weather.sys.sunrise));
-    println!("Sunset: {}", unix_time_to_datetime(weather.sys.sunset));
-    println!("Visibily: {}m", weather.visibility);
-    println!("Wind Degree: {}°", weather.wind.deg);
+    println!("{}{}•City: {}{}",GREEN,BOLD,RESET, read_city_name()?);
+    println!("{}{}•Temperature: {}{}°{}",GREEN,BOLD,RESET, weather.main.temp, read_unit()?);
+    println!("{}{}•Feels Like: {}{}°{}",GREEN,BOLD,RESET, weather.main.feels_like, read_unit()?);
+    println!("{}{}•Weather Description: {}{}",GREEN,BOLD,RESET, weather.weather[0].description);
+    println!("{}{}•Minimum Temperature: {}{}°{}",GREEN,BOLD,RESET, weather.main.temp_min, read_unit()?);
+    println!("{}{}•Maximum Temperature: {}{}°{}",GREEN,BOLD,RESET, weather.main.temp_max, read_unit()?);
+    println!("{}{}•Humidity: {}{}%",GREEN,BOLD,RESET, weather.main.humidity);
+    println!("{}{}•Pressure: {}{} hPa",GREEN,BOLD,RESET, weather.main.pressure);
+    println!("{}{}•Sunrise: {}{}",GREEN,BOLD,RESET, unix_time_to_datetime(weather.sys.sunrise));
+    println!("{}{}•Sunset: {}{}",GREEN,BOLD,RESET, unix_time_to_datetime(weather.sys.sunset));
+    println!("{}{}•Visibily: {}{}m",GREEN,BOLD,RESET, weather.visibility);
+    println!("{}{}•Wind Degree: {}{}°",GREEN,BOLD,RESET, weather.wind.deg);
     let speed_value = if read_unit()? == "C" { "m/s" } else { "miles/h" };
-    println!("Wind Speed: {} {}", weather.wind.speed,speed_value);
+    println!("{}{}•Wind Speed: {}{} {}",GREEN,BOLD,RESET, weather.wind.speed,speed_value);
     Ok(())
 }
 
