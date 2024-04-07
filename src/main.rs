@@ -9,7 +9,8 @@ mod config;
 fn help() {
     println!("Usage:
         -h      Display help
-        -c      Change city
+        -c       // Print all other weather data here if needed
+        Change city
         -u      Change unit
         -d      Load default city
         -t      See more information for today's weather
@@ -51,7 +52,7 @@ fn main() {
                 }
             }
             "-t" => {
-                if let Err(err) = instance::weather_now() {
+                if let Err(err) = instance::weather_details() {
                     eprintln!("Error: {}", err);
                 }
             }

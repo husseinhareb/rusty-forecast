@@ -71,8 +71,7 @@ pub fn weather_forecast() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("{}", city_name);
 
-    for forecast_data in forecast.list.iter().take(4) {
-        let weather_description = match forecast_data.weather.get(0) {
+    for forecast_data in forecast.list.iter().step_by(8).take(4) {        let weather_description = match forecast_data.weather.get(0) {
             Some(desc) => &desc.description,
             None => {
                 println!("No weather description available");

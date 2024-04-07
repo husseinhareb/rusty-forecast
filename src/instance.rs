@@ -1,15 +1,15 @@
-// instance.rs
-
 use serde::Deserialize;
-use serde_json::Value;
-use reqwest::blocking::Client;
 use crate::config::{read_city_name, read_unit};
 use crate::condition_icons::WeatherStatus;
 use crate::condition_icons::map_weather_description_to_code;
+use chrono::{NaiveDateTime, TimeZone, Local};
+
 #[derive(Deserialize)]
 struct WeatherResponse {
     main: WeatherData,
     weather: Vec<WeatherDescription>,
+    sys: SysData,
+
 }
 
 #[derive(Deserialize)]
@@ -21,55 +21,52 @@ struct WeatherDescription {
 struct WeatherData {
     temp: f32,
     humidity: f32,
+    pressure: f32,
+    feels_like: f32,
+    temp_max: f32,
+    temp_min: f32,
+}
+
+#[derive(Deserialize)]
+struct SysData {
+    sunrise: i64,
+    sunset: i64,
 }
 
 
-
-pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
+fn fetch_weather_data() -> Result<WeatherResponse, Box<dyn std::error::Error>> {
     let api_key = "2a33d8b44aa8d93d07feac453b4a79aa";
 
-    // Read city name from config
-    let city_name = match read_city_name() {
-        Ok(name) => name,
-        Err(err) => {
-            eprintln!("Error reading city name: {}", err);
-            return Ok(());
-        }
-    };
+    let city_name = read_city_name()?;
+    let unit_value = read_unit()?;
 
-    // Read unit value from config
-    let unit_value = match read_unit() {
-        Ok(name) => name,
-        Err(err) => {
-            eprintln!("Error reading unit value: {}", err);
-            return Ok(());
-        }
-    };
-    
-    // Determine unit type based on unit value
     let unit_type = if unit_value == "C" {
         "metric"
     } else {
         "imperial"
     };
-    
-    let url = format!("http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}", 
-                      city_name, api_key, unit_type);
 
-    let response = Client::new().get(&url).send()?;
+    let url = format!(
+        "http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}",
+        city_name, api_key, unit_type
+    );
 
-    let data: Value = serde_json::from_str(&response.text()?)?;
-
-    if data["cod"] != 200 {
-        println!("Error: {}", data["message"]);
-        return Ok(());
+    let response: serde_json::Value = reqwest::blocking::get(&url)?.json()?;
+    if response["cod"] != 200 {
+        return Err(format!("Error: {}", response["message"]).into());
     }
+    serde_json::from_value(response).map_err(Into::into)
+}
 
-    let weather: WeatherResponse = serde_json::from_value(data)?;
-    println!("{}", city_name);
-    println!("{}", weather.weather[0].description);
+pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
+    let weather = match fetch_weather_data() {
+        Ok(weather) => weather,
+        Err(err) => {
+            eprintln!("Error fetching weather data: {}", err);
+            return Ok(());
+        }
+    };
 
-    // Get the weather description from the response
     let weather_description = match weather.weather.get(0) {
         Some(desc) => &desc.description,
         None => {
@@ -78,7 +75,6 @@ pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    // Map weather description to weather code
     let weather_code = match map_weather_description_to_code(&weather_description) {
         Some(code) => code,
         None => {
@@ -87,7 +83,6 @@ pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    // Get the WeatherStatus corresponding to the weather code
     let weather_status = match WeatherStatus::from_weather_code(weather_code) {
         Some(status) => status,
         None => {
@@ -96,21 +91,48 @@ pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    // Print weather information
-    let temp_box = format!("╔═════════════════════╗\n\
-                            ║        {}         ║\n\
-                            ║        {}      ║\n\
-                            ║        {} °{}       ║\n\
-                            ║        {} %       ║\n\
-                            ╚═════════════════════╝", 
-                            weather_status.icon(),
-                            weather.weather[0].description,
-                            weather.main.temp,
-                            unit_value,
-                            weather.main.humidity
-                           );
+    let temp_box = format!(
+        "╔═════════════════════╗\n\
+         ║        {}         ║\n\
+         ║        {}      ║\n\
+         ║        {} °{}       ║\n\
+         ║        {} %       ║\n\
+         ╚═════════════════════╝",
+        weather_status.icon(),
+        weather.weather[0].description,
+        weather.main.temp,
+        read_unit()?,
+        weather.main.humidity
+    );
 
     println!("{}", temp_box);
-    
+
     Ok(())
+}
+
+
+pub fn weather_details() -> Result<(), Box<dyn std::error::Error>> {
+    let weather = fetch_weather_data()?;
+    println!("City: {}", read_city_name()?);
+    println!("Temperature: {}°{}", weather.main.temp, read_unit()?);
+    println!("Feels Like: {}°{}", weather.main.feels_like, read_unit()?);
+    println!("Weather Description: {}", weather.weather[0].description);
+    println!("Minimum Temperature: {}°{}", weather.main.temp_min, read_unit()?);
+    println!("Maximum Temperature: {}°{}", weather.main.temp_max, read_unit()?);
+    println!("Humidity: {}%", weather.main.humidity);
+    println!("Pressure: {}", weather.main.pressure);
+    println!("Sunrise: {}", unix_timestamp_to_local_time(weather.sys.sunrise));
+    println!("Sunset: {}", unix_timestamp_to_local_time(weather.sys.sunset));
+
+    Ok(())
+}
+
+fn unix_timestamp_to_local_time(timestamp: i64) -> String {
+    let naive_datetime = NaiveDateTime::from_timestamp(timestamp, 0);
+
+    let local_datetime = Local.from_utc_datetime(&naive_datetime);
+
+    let formatted_time = local_datetime.format("%H:%M:%S").to_string();
+
+    formatted_time
 }
