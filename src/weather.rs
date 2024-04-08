@@ -7,7 +7,6 @@ use chrono::{NaiveDateTime, TimeZone, Local};
 const API_KEY: &str = "2a33d8b44aa8d93d07feac453b4a79aa";
 
 const GREEN: &str = "\x1b[32m";
-const BLUE: &str = "\x1b[34m";
 
 const RESET: &str = "\x1b[0m";
 const BOLD: &str = "\x1b[1m";
@@ -256,7 +255,7 @@ pub fn weather_details() -> Result<(), Box<dyn std::error::Error>> {
 
 //Function to convert unix time to local datetime
 fn unix_time_to_datetime(timestamp: i64) -> String {
-    let naive_datetime = NaiveDateTime::from_timestamp(timestamp, 0);
+    let naive_datetime = DateTime::from_timestamp(timestamp, 0);
 
     let local_datetime = Local.from_utc_datetime(&naive_datetime);
 
