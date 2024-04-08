@@ -140,12 +140,12 @@ pub fn weather_forecast() -> Result<(), Box<dyn std::error::Error>> {
     let formatted_humidity = format!("{}%", forecast_data.main.humidity);
     
     let temp_box = [
-        "╔═════════════════════╗",
-        &format!("║{: ^21}║", date),
-        &format!("║{: ^21}║", weather_status.icon()), 
-        &format!("║{: ^21}║", formatted_temp), 
-        &format!("║{: ^21}║", formatted_humidity),
-        "╚═════════════════════╝",
+        "╔══════════════════╗",
+        &format!("║{: ^18}║", date),
+        &format!("║{: ^18}║", weather_status.icon()), 
+        &format!("║{: ^18}║", formatted_temp), 
+        &format!("║{: ^18}║", formatted_humidity),
+        "╚══════════════════╝",
     ].join("\n");
     
     println!("{}", temp_box);
@@ -218,12 +218,12 @@ pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
     let formatted_humidity = format!(" {}%", weather.main.humidity);
     println!("•{}", read_city_name()?);
     let temp_box = [
-        "╔═════════════════════╗",
-        &format!("║{: ^21}║", weather_status.icon()), 
-        &format!("║{: ^21}║", weather.weather[0].description),
-        &format!("║{: ^21}║", formatted_temp), 
-        &format!("║{: ^21}║", formatted_humidity),
-        "╚═════════════════════╝",
+        "╔══════════════════╗",
+        &format!("║{: ^18}║", weather_status.icon()), 
+        &format!("║{: ^18}║", weather.weather[0].description),
+        &format!("║{: ^18}║", formatted_temp), 
+        &format!("║{: ^18}║", formatted_humidity),
+        "╚══════════════════╝",
     ].join("\n");
     
     println!("{}", temp_box);
