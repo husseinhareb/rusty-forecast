@@ -7,6 +7,7 @@ use chrono::{NaiveDateTime, TimeZone, Local};
 const API_KEY: &str = "2a33d8b44aa8d93d07feac453b4a79aa";
 
 const GREEN: &str = "\x1b[32m";
+const BLUE: &str = "\x1b[34m";
 
 const RESET: &str = "\x1b[0m";
 const BOLD: &str = "\x1b[1m";
@@ -16,13 +17,8 @@ struct WeatherResponse {
     main: WeatherData,
     weather: Vec<WeatherDescription>,
     sys: SysData,
-    visibility: f32,
     wind: WindData,
-}
-
-#[derive(Deserialize)]
-struct WeatherDescription {
-    description: String,
+    visibility: f32,
 }
 
 #[derive(Deserialize)]
@@ -33,6 +29,11 @@ struct WeatherData {
     feels_like: f32,
     temp_max: f32,
     temp_min: f32,
+}
+
+#[derive(Deserialize)]
+struct WeatherDescription {
+    description: String,
 }
 
 #[derive(Deserialize)]
@@ -49,6 +50,7 @@ struct WindData {
 }
 
 
+
 #[derive(Deserialize)]
 struct ForecastResponse {
     list: Vec<ForecastData>,
@@ -62,7 +64,7 @@ struct ForecastData {
 }
 
 
-//Function to print the upcoming 4 days
+//Function to print the weather of the 4 upcoming days
 pub fn weather_forecast() -> Result<(), Box<dyn std::error::Error>> {
     let city_name = match read_city_name() {
         Ok(name) => name,
@@ -212,8 +214,9 @@ pub fn weather_now() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    let formatted_temp = format!("{}°{}", weather.main.temp, read_unit()?);
-    let formatted_humidity = format!("{}%", weather.main.humidity);
+    let formatted_temp = format!(" {}°{}", weather.main.temp, read_unit()?);
+    let formatted_humidity = format!(" {}%", weather.main.humidity);
+    println!("•{}", read_city_name()?);
     let temp_box = [
         "╔═════════════════════╗",
         &format!("║{: ^21}║", weather_status.icon()), 

@@ -1,19 +1,20 @@
 use std::env;
 
+mod config;
 mod weather;
 mod city;
 mod condition_icons;
-mod config;
 
 fn help() {
-    println!("Usage:
-        -h      Display help
-        -c      Change city
-        -u      Change unit
-        -d      Load default city
-        -t      See more information for today's weather
-        -s      Display settings
-        -w      Display the week's weather");
+    println!("Usage: rusty-forecast [options] | rusty-forecast");
+    println!("Options:");   
+    println!("-h               Display this help message");     
+    println!("-c <city_name>   Change the city name");
+    println!("-d               Set the default city according to timezone");
+    println!("-t               Show more weather details of today");
+    println!("-w               Show weather forecast");
+    println!("-s               Show all configuration settings");
+    println!("-u <unit>        Set the unit of temperature (Celsius or Fahrenheit)");
 }
 
 
@@ -26,7 +27,6 @@ fn main() {
         return;
     }
 
-    // Iterate through command-line arguments
     let mut iter = args.iter().skip(1); // Skip the first argument (program name)
 
     while let Some(arg) = iter.next() {
