@@ -5,7 +5,8 @@ rusty-forecast is a Linux CLI command for retrieving weather details.
 ```
   git clone https://github.com/husseinhareb/rusty-forecast/
   cd rusty-forecast/
-  make install
+  make build
+  sudo make install
 ```
 Note: Rust should be installed on your system to build the binary.
 ## USAGE
