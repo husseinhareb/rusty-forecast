@@ -2,8 +2,7 @@ use serde::Deserialize;
 use crate::config::{read_city_name, read_unit,read_api_key};
 use crate::condition_icons::WeatherStatus;
 use crate::condition_icons::map_weather_description_to_code;
-use chrono::{NaiveDateTime, TimeZone, Local};
-
+use chrono::{Local, TimeZone};
 
 const GREEN: &str = "\x1b[32m";
 
@@ -253,13 +252,17 @@ pub fn weather_details() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 
-//Function to convert unix time to local datetime
+// Function to convert Unix time to local datetime
 fn unix_time_to_datetime(timestamp: i64) -> String {
-    let naive_datetime = NaiveDateTime::from_timestamp(timestamp, 0);
-
-    let local_datetime = Local.from_utc_datetime(&naive_datetime);
-
-    let formatted_time = local_datetime.format("%H:%M:%S").to_string();
-
-    formatted_time
+    match Local.timestamp_opt(timestamp, 0) {
+        chrono::LocalResult::Single(local_datetime) => {
+            local_datetime.format("%H:%M:%S").to_string()
+        }
+        chrono::LocalResult::None => {
+            "Invalid timestamp".to_string()
+        }
+        chrono::LocalResult::Ambiguous(_, _) => {
+            "Ambiguous timestamp".to_string()
+        }
+    }
 }

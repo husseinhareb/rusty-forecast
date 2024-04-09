@@ -1,20 +1,11 @@
-use std::process::Command;
+use reqwest::Error;
 
-// Function to get the default city according 
-pub fn default_city() -> Result<String, std::io::Error> {
-    let output = Command::new("sh")
-                         .arg("-c")
-                         .arg("timedatectl | awk '/Time zone/ {split($3, a, \"/\"); print a[2]}'")
-                         .output()?;
-
-    if output.status.success() {
-        let result = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        println!("{}", result);
-        Ok(result)
-    } else {
-        Err(std::io::Error::new(std::io::ErrorKind::Other, "Command execution failed"))
-    }
+#[derive(Debug, serde::Deserialize)]
+struct IpInfo {
+    city: Option<String>,
 }
 
-
-
+pub fn default_city() -> Result<Option<String>, Error> {
+    let response: IpInfo = reqwest::blocking::get("https://ipinfo.io/json")?.json()?;
+    Ok(response.city)
+}

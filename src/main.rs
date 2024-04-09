@@ -39,6 +39,7 @@ fn main() {
             "-c" => {
                 if let Some(city_name) = iter.next().map(|s| s.to_owned()) {
                     let _ = config::write_city_name(&city_name);
+                    let _ = weather::weather_now(); 
                 } else {
                     eprintln!("City name not provided for the -c flag.");
                     help();

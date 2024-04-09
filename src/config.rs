@@ -3,6 +3,10 @@ use std::path::PathBuf;
 use std::io::{self, prelude::*, BufRead, Write};
 use crate::city::default_city;
 
+
+const GREEN: &str = "\x1b[32m";
+const RESET: &str = "\x1b[0m";
+
 // Function to create the config file if not created
 pub fn create_config() -> std::io::Result<()> {
     let config_dir = dirs::config_dir().expect("Unable to determine config directory");
@@ -142,7 +146,8 @@ pub fn read_api_key() -> io::Result<String> {
         }
     }
     
-    println!("Api Key not found.\nPlease paste your API key:");
+    println!("Api Key not found.\nGet yours for free on {}https://openweathermap.org/{}.\n",GREEN,RESET);
+    print!("Paste your api key here:");
     let mut api_key = String::new();
     io::stdin().read_line(&mut api_key)?;
     api_key = api_key.trim().to_string();
@@ -200,13 +205,20 @@ pub fn read_unit() -> io::Result<String> {
     Err(io::Error::new(io::ErrorKind::NotFound, "Unit name not found"))
 }
 
-// Function to write default city according to Timezone into the config file
+// Function to write default city according to the ip address into the config file
 pub fn write_def_city() -> io::Result<()> {
     let def_city = match default_city() {
-        Ok(city) => city,
-        Err(err) => return Err(err),
+        Ok(Some(city)) => city,
+        Ok(None) => {
+            return Err(io::Error::new(io::ErrorKind::Other, "Default city not found"));
+        }
+        Err(err) => {
+            return Err(io::Error::new(
+                io::ErrorKind::Other,
+                format!("Failed to get default city: {}", err),
+            ));
+        }
     };
-
     write_city_name(&def_city)
 }
 

@@ -15,7 +15,7 @@ Usage: rusty-forecast [options] | rusty-forecast
 Options:
 -h               Display this help message
 -c <city name>   Change the city name
--d               Set the default city according to timezone
+-d               Set the default city according to ip address
 -t               Show more weather details of today
 -w               Show weather forecast
 -s               Show all configuration settings
