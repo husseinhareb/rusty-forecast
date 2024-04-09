@@ -9,12 +9,13 @@ fn help() {
     println!("Usage: rusty-forecast [options] | rusty-forecast");
     println!("Options:");   
     println!("-h               Display this help message");     
-    println!("-c <city_name>   Change the city name");
+    println!("-c <city name>   Change the city name");
     println!("-d               Set the default city according to timezone");
     println!("-t               Show more weather details of today");
     println!("-w               Show weather forecast");
     println!("-s               Show all configuration settings");
     println!("-u <unit>        Set the unit of temperature (Celsius or Fahrenheit)");
+    println!("-a <api key>     Set the api key")
 }
 
 
@@ -67,19 +68,27 @@ fn main() {
             "-u" => {
                 if let Some(unit_value) = iter.next() {
                     if let Some(unit_char) = unit_value.chars().next() {
-                        let unit = unit_char.to_ascii_uppercase();
-                        if unit == 'C' || unit == 'F' {
-                            let _ = config::write_unit(&unit);
-                        } else {
-                            eprintln!("Invalid unit value provided. Use 'C' or 'F'.");
-                            return;
-                        }
+                        let unit = unit_char.to_string(); // Convert char to String
+                        let _ = config::write_unit(&unit);
                     } else {
                         eprintln!("Invalid unit value provided. Use single characters 'C' or 'F'.");
                         return;
                     }
+                } else {
+                    eprintln!("Unit value not provided for the -u flag.");
+                    help();
+                    return;
                 }
-                
+            }
+            
+            "-a" => {
+                if let Some(api_key) = iter.next().map(|s| s.to_owned()) {
+                    let _ = config::write_api_key(&api_key);
+                } else {
+                    eprintln!("Api key not provided for the -a flag.");
+                    help();
+                    return;
+                }
             }
             
             _ => {

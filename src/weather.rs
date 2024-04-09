@@ -1,10 +1,9 @@
 use serde::Deserialize;
-use crate::config::{read_city_name, read_unit};
+use crate::config::{read_city_name, read_unit,read_api_key};
 use crate::condition_icons::WeatherStatus;
 use crate::condition_icons::map_weather_description_to_code;
 use chrono::{NaiveDateTime, TimeZone, Local};
 
-const API_KEY: &str = "2a33d8b44aa8d93d07feac453b4a79aa";
 
 const GREEN: &str = "\x1b[32m";
 
@@ -80,7 +79,7 @@ pub fn weather_forecast() -> Result<(), Box<dyn std::error::Error>> {
             return Ok(());
         }
     };
-    
+    let api_key = read_api_key()?;
     // Determine unit type based on unit value
     let unit_type = if unit_value == "C" {
         "metric"
@@ -88,7 +87,7 @@ pub fn weather_forecast() -> Result<(), Box<dyn std::error::Error>> {
         "imperial"
     };
 
-    let url = format!("http://api.openweathermap.org/data/2.5/forecast?q={}&appid={}&units={}", city_name, API_KEY,unit_type);
+    let url = format!("http://api.openweathermap.org/data/2.5/forecast?q={}&appid={}&units={}", city_name, api_key,unit_type);
 
     let response = reqwest::blocking::get(&url)?.text()?;
 
@@ -160,6 +159,7 @@ fn fetch_weather_data() -> Result<WeatherResponse, Box<dyn std::error::Error>> {
 
     let city_name = read_city_name()?;
     let unit_value = read_unit()?;
+    let api_key = read_api_key()?;
     let unit_type = if unit_value == "C" {
         "metric"
     } else {
@@ -168,7 +168,7 @@ fn fetch_weather_data() -> Result<WeatherResponse, Box<dyn std::error::Error>> {
 
     let url = format!(
         "http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}",
-        city_name, API_KEY, unit_type
+        city_name, api_key, unit_type
     );
 
     let response: serde_json::Value = reqwest::blocking::get(&url)?.json()?;
