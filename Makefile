@@ -14,12 +14,12 @@ build:
 > cargo build
 
 # Install target
-install: build
-> sudo cp $(DEBUG_BINARY) $(INSTALL_DIR)
+install:
+> cp $(DEBUG_BINARY) $(INSTALL_DIR)
 
 # Uninstall target
 uninstall:
-> sudo rm -f $(INSTALL_DIR)/$(PROJECT_NAME)
+> rm -f $(INSTALL_DIR)/$(PROJECT_NAME)
 
 # Clean target
 clean:
