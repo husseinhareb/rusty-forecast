@@ -255,7 +255,7 @@ pub fn weather_details() -> Result<(), Box<dyn std::error::Error>> {
 
 //Function to convert unix time to local datetime
 fn unix_time_to_datetime(timestamp: i64) -> String {
-    let naive_datetime = DateTime::from_timestamp(timestamp, 0);
+    let naive_datetime = NaiveDateTime::from_timestamp(timestamp, 0);
 
     let local_datetime = Local.from_utc_datetime(&naive_datetime);
 
