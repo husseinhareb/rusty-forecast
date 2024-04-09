@@ -2,20 +2,19 @@
 
 # Variables
 PROJECT_NAME = rusty-forecast
-DEBUG_BINARY = target/debug/$(PROJECT_NAME)
 RELEASE_BINARY = target/release/$(PROJECT_NAME)
-INSTALL_DIR = /usr/bin
+INSTALL_DIR = /usr/bin/
 
 # Default target
 all: build
 
 # Build target
 build:
-> cargo build
+> cargo build --release
 
 # Install target
 install:
-> cp $(DEBUG_BINARY) $(INSTALL_DIR)
+> cp $(RELEASE_BINARY) $(INSTALL_DIR)
 
 # Uninstall target
 uninstall:
