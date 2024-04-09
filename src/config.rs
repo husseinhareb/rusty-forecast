@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use std::io::{self, prelude::*, BufRead, Write};
 use crate::city::default_city;
 
+// Function to create the config file if not created
 pub fn create_config() -> std::io::Result<()> {
     let config_dir = dirs::config_dir().expect("Unable to determine config directory");
     let folder_path = config_dir.join("rusty-forecast");
@@ -21,6 +22,7 @@ pub fn create_config() -> std::io::Result<()> {
     }
 }
 
+// Function to read all configs
 pub fn read_all_configs() -> io::Result<String> {
     let file_path = config_file()?;
 
@@ -43,6 +45,7 @@ pub fn read_all_configs() -> io::Result<String> {
     Ok(config_content)
 }
 
+// Function to write city name according to parameter into the config file
 pub fn write_city_name(city_name: &str) -> io::Result<()> {
     let file_path = config_file()?;
     let mut file_content = String::new();
@@ -75,6 +78,24 @@ pub fn write_city_name(city_name: &str) -> io::Result<()> {
     Ok(())
 }
 
+// Function to read city name from config file
+pub fn read_city_name() -> io::Result<String> {
+    let file_path = config_file()?;
+    let file = File::open(&file_path)?;
+    let reader = io::BufReader::new(file);
+
+    for line in reader.lines() {
+        let line = line?;
+        if line.trim().starts_with("city") {
+            let city_name = line.split_whitespace().skip(1).collect::<Vec<&str>>().join(" ");
+            return Ok(city_name);
+        }
+    }
+
+    Err(io::Error::new(io::ErrorKind::NotFound, "City name not found"))
+}
+
+// Function to write api key according to parameter into the config file
 pub fn write_api_key(api_key: &str) -> io::Result<()> {
     let file_path = config_file()?;
     let mut file_content = String::new();
@@ -107,6 +128,7 @@ pub fn write_api_key(api_key: &str) -> io::Result<()> {
     Ok(())
 }
 
+// Function to read api key from config file
 pub fn read_api_key() -> io::Result<String> {
     let file_path = config_file()?;
     let file = File::open(&file_path)?;
@@ -128,22 +150,7 @@ pub fn read_api_key() -> io::Result<String> {
     Ok(api_key)
 }
 
-pub fn read_city_name() -> io::Result<String> {
-    let file_path = config_file()?;
-    let file = File::open(&file_path)?;
-    let reader = io::BufReader::new(file);
-
-    for line in reader.lines() {
-        let line = line?;
-        if line.trim().starts_with("city") {
-            let city_name = line.split_whitespace().skip(1).collect::<Vec<&str>>().join(" ");
-            return Ok(city_name);
-        }
-    }
-
-    Err(io::Error::new(io::ErrorKind::NotFound, "City name not found"))
-}
-
+// Function to write unit value according to parameter into the config file
 pub fn write_unit(unit_value: &str) -> io::Result<()> {
     let file_path = config_file()?;
     let mut file_content = String::new();
@@ -176,6 +183,7 @@ pub fn write_unit(unit_value: &str) -> io::Result<()> {
     Ok(())
 }
 
+// Function to read unit value from config file
 pub fn read_unit() -> io::Result<String> {
     let file_path = config_file()?;
     let file = File::open(&file_path)?;
@@ -192,6 +200,7 @@ pub fn read_unit() -> io::Result<String> {
     Err(io::Error::new(io::ErrorKind::NotFound, "Unit name not found"))
 }
 
+// Function to write default city according to Timezone into the config file
 pub fn write_def_city() -> io::Result<()> {
     let def_city = match default_city() {
         Ok(city) => city,
@@ -201,6 +210,7 @@ pub fn write_def_city() -> io::Result<()> {
     write_city_name(&def_city)
 }
 
+// Function to check if a folder exists
 fn folder_exists(folder_path: &PathBuf) -> bool {
     if let Ok(metadata) = std::fs::metadata(folder_path) {
         metadata.is_dir()
@@ -209,6 +219,7 @@ fn folder_exists(folder_path: &PathBuf) -> bool {
     }
 }
 
+// Function to check if a file exists
 fn file_exists(file_path: &PathBuf) -> bool {
     if let Ok(metadata) = std::fs::metadata(file_path) {
         metadata.is_file()
@@ -217,6 +228,7 @@ fn file_exists(file_path: &PathBuf) -> bool {
     }
 }
 
+// Function to get the path of the config file
 fn config_file() -> Result<PathBuf, io::Error> {
     let config_dir = match dirs::config_dir() {
         Some(path) => path,

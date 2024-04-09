@@ -14,12 +14,13 @@ Note: Rust should be installed on your system to build the binary.
 Usage: rusty-forecast [options] | rusty-forecast
 Options:
 -h               Display this help message
--c <city_name>   Change the city name
+-c <city name>   Change the city name
 -d               Set the default city according to timezone
 -t               Show more weather details of today
 -w               Show weather forecast
 -s               Show all configuration settings
 -u <unit>        Set the unit of temperature (Celsius or Fahrenheit)
+-a <api key>     Set the api key
 ```
 ## Screenshots
 
